@@ -1,16 +1,21 @@
+import os
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.ext.declarative import declarative_base
+from pydantic_settings import BaseSettings
 
-# 1. Esta es la URL de conexión a tu base de datos PostgreSQL.
-# Formato: "postgresql://usuario:contraseña@host/nombre_db"
-SQLALCHEMY_DATABASE_URL = "postgresql://angel_dev:brasiljr08@localhost/stockmaster_db"
+class Settings(BaseSettings):
+    # El valor por defecto sigue siendo el de tu máquina local,
+    # pero ahora Render lo reemplazará con la variable de entorno.
+    DATABASE_URL: str = "postgresql://angel_dev:brasiljr08@localhost/stockmaster_db"
 
-# 2. El "motor" de SQLAlchemy que se conectará a la base de datos.
-engine = create_engine(SQLALCHEMY_DATABASE_URL)
+    class Config:
+        env_file = ".env"
 
-# 3. La "sesión". Cada vez que necesitemos hablar con la BD, abriremos una de estas.
+settings = Settings()
+
+engine = create_engine(settings.DATABASE_URL)
+
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
-# 4. Una clase base que nuestros modelos de la base de datos heredarán.
 Base = declarative_base()
